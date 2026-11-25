@@ -1,13 +1,13 @@
 import { Outlet, ScrollRestoration } from "react-router";
-import { useRevealFallback } from "./lib/reveal";
+import { DemoBar } from "./components/DemoBar";
+import { AuthProvider } from "./lib/auth";
 
 export default function App() {
-  // IntersectionObserver fallback for .reveal when the browser has no scroll-driven animations.
-  useRevealFallback();
   return (
-    <>
+    <AuthProvider>
+      <DemoBar />
       <Outlet />
       <ScrollRestoration />
-    </>
+    </AuthProvider>
   );
 }

@@ -1,7 +1,7 @@
 // 템플릿 공통 Worker 도구. 템플릿마다 그대로 복사해 쓴다(템플릿은 서로 import 하지 않는다).
 import type { Context, MiddlewareHandler } from "hono";
 
-export type Bindings = { DB: D1Database; ASSETS: Fetcher; ADMIN_TOKEN?: string };
+export type Bindings = { DB: D1Database; ASSETS: Fetcher; ADMIN_TOKEN?: string; NEIS_API_KEY?: string };
 
 /** 문자열만 받고, 앞뒤 공백을 자르고, 길이를 제한한다. 문자열이 아니면 "". */
 export const clean = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -105,7 +105,7 @@ export async function purgeAfter(db: D1Database, anchorIso: string | undefined, 
 }
 
 /** 같은 IP 가 window 초 안에 limit 번 넘게 쓰면 막는다. 테이블 rate_limit 이 schema.sql 에 있어야 한다. */
-export async function rateLimited(c: Context<{ Bindings: Bindings }>, bucket: string, limit: number, windowSec: number) {
+export async function rateLimited(c: { req: Context["req"]; env: Bindings }, bucket: string, limit: number, windowSec: number) {
   const ip = c.req.header("cf-connecting-ip") ?? "local";
   const key = `${bucket}:${await sha256(ip)}`;
   const now = Math.floor(Date.now() / 1000);
@@ -123,3 +123,26 @@ export async function rateLimited(c: Context<{ Bindings: Bindings }>, bucket: st
 export async function purgeOlderThan(db: D1Database, table: string, days: number) {
   await db.prepare(`DELETE FROM ${table} WHERE created_at < datetime('now', ?)`).bind(`-${Math.floor(days)} days`).run();
 }
+
+/** 요청 본문 JSON. 깨졌거나 객체가 아니면 {}. */
+export async function body(c: Context): Promise<Record<string, unknown>> {
+  const b = await c.req.json().catch(() => ({}));
+  return b && typeof b === "object" && !Array.isArray(b) ? (b as Record<string, unknown>) : {};
+}
+
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // 헷갈리는 0·O·1·I·L 제외, 31자
+
+/** 무작위 가입 코드(기본 6자). 나머지 편향이 없도록 248 이상 바이트는 버린다. */
+export function randomCode(length = 6) {
+  let out = "";
+  while (out.length < length) {
+    for (const b of crypto.getRandomValues(new Uint8Array(length * 2))) {
+      if (b < 248 && out.length < length) out += CODE_ALPHABET[b % 31];
+    }
+  }
+  return out;
+}
+
+export const normalizeCode = (v: unknown) => (typeof v === "string" ? v.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) : "");
+export const nowIso = () => new Date().toISOString();
+export const daysFromNow = (d: number) => new Date(Date.now() + d * 864e5).toISOString();

@@ -1,1 +1,1 @@
-{ "data": { "tables": [] }, "secrets": ["ADMIN_TOKEN"] }
+{ "data": { "tables": ["users", "classes", "class_members", "schools", "manitto_seasons", "missions", "mission_submissions", "credit_transactions", "activity_logs"] }, "secrets": ["ADMIN_TOKEN"] }
