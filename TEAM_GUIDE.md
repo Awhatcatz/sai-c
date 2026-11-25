@@ -16,7 +16,7 @@
                         ┘   (GitHub 저장소)      └─ 게시 → sai-on.baze.cloud
 ```
 
-1. **소유자 프로젝트**(지금 `sai-on.baze.cloud`를 게시하는 이 프로젝트)에서 GitHub를 연결하고 비공개 저장소를 만들어 코드를 올린다.
+1. **소유자 프로젝트**(지금 `sai-on.baze.cloud`를 게시하는 이 프로젝트)의 코드가 공개 저장소 https://github.com/Awhatcatz/sai-c 에 있다(2026-11-25 생성). 공개 저장소이므로 비밀 값·실제 학생 정보는 절대 커밋하지 않는다.
 2. 소유자가 GitHub 저장소 **Settings > Collaborators**에서 팀원을 초대한다(GitHub 기능).
 3. 팀원은 자기 BAZE에서 GitHub를 연결하고 바이브 코딩을 **GitHub 저장소에서 시작하기**로 연다. 또는 자기 컴퓨터에서 `npm install && npm run dev`.
    - 초대받은 저장소가 BAZE 가져오기 목록에 보이는지는 문서에 없다. 첫 팀원이 확인해 여기에 적는다.
